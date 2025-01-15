@@ -16,6 +16,9 @@ def main():
     # Custom CSS
     st.markdown("""
         <style>
+        .body {
+            background-color: white !important;
+        }
         .main {
             padding: 1rem;
         }
