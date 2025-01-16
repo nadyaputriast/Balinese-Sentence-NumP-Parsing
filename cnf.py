@@ -77,14 +77,48 @@ def remove_unit_productions(cfg):
                             new_cfg[head].append(body)
     return new_cfg
 
-def convert_to_cnf(cfg):
-    """Convert grammar to Chomsky Normal Form."""
-    # Step 1: Create new grammar with terminals replaced
+def remove_useless_productions(cfg):
+    """Remove useless productions from the grammar."""
+    # Cari simbol yang menghasilkan terminal
+    generating = set()
+    changed = True
+    while changed:
+        changed = False
+        for head, bodies in cfg.items():
+            if head not in generating:
+                for body in bodies:
+                    if all(symbol in generating or symbol not in cfg for symbol in body):
+                        generating.add(head)
+                        changed = True
+                        break
+    
+    # Cari simbol yang dapat dijangkau dari simbol awal
+    reachable = set()
+    to_process = {'S'}  # Asumsikan 'S' adalah simbol awal
+    while to_process:
+        symbol = to_process.pop()
+        reachable.add(symbol)
+        if symbol in cfg:
+            for body in cfg[symbol]:
+                for sym in body:
+                    if sym not in reachable and sym in cfg:
+                        to_process.add(sym)
+    
+    # Buang simbol yang tidak berguna
+    new_cfg = {head: [] for head in cfg if head in generating and head in reachable}
+    for head in new_cfg:
+        for body in cfg[head]:
+            if all(symbol in generating and symbol in reachable for symbol in body):
+                new_cfg[head].append(body)
+    
+    return new_cfg
+
+def convert_to_binary(cfg):
+    """Transform grammar to binary form."""
     new_cfg = {}
     terminal_rules = {}
     counter = 0
     
-    # First, create rules for terminals
     for head, bodies in cfg.items():
         new_cfg[head] = []
         for body in bodies:
@@ -99,20 +133,16 @@ def convert_to_cnf(cfg):
                     new_body.append(symbol)
             new_cfg[head].append(new_body)
     
-    # Add terminal rules to grammar
+    # Tambahkan aturan terminal ke grammar
     new_cfg.update(terminal_rules)
     
-    # Step 2: Convert long productions
-    final_cfg = {}
-    for head in new_cfg:
-        final_cfg[head] = []
-    
+    # Ubah aturan panjang menjadi biner
+    final_cfg = {head: [] for head in new_cfg}
     for head, bodies in new_cfg.items():
         for body in bodies:
             if len(body) <= 2:
                 final_cfg[head].append(body)
             else:
-                # Create new rules for long productions
                 current_head = head
                 remaining_body = body[:]
                 while len(remaining_body) > 2:
@@ -126,3 +156,11 @@ def convert_to_cnf(cfg):
                 final_cfg[current_head].append(remaining_body)
     
     return final_cfg
+
+def convert_to_cnf(cfg):
+    """Convert grammar to Chomsky Normal Form."""
+    cfg = remove_epsilon_productions(cfg)
+    cfg = remove_unit_productions(cfg)
+    cfg = remove_useless_productions(cfg)
+    cfg = convert_to_binary(cfg)
+    return cfg
