@@ -30,3 +30,149 @@ RULES_CFG = {
     
     "Adj": [["adil"], ["ajum"], ["alus"], ["akeh"], ["anteng"], ["anyar"], ["ayu"], ["bagus"], ["bajang"], ["banyol"], ["barak"], ["baru"], ["bawak"], ["bagia"], ["becik"], ["bedak"], ["berag"], ["beneh"], ["belog"], ["berek"], ["betek"], ["cupit"], ["cerik"], ["cenik"], ["darma"], ["demen"], ["dalem"], ["dingin"], ["dueg"], ["endah"], ["endep"], ["galak"], ["galak-galak"], ["gede"], ["gede-gede"], ["gelem"], ["gedeg"], ["ibuk"], ["inguh"], ["jaen"], ["jele"], ["jegeg"], ["jegeg-jegeg"],["jemet"], ["kelih"], ["kenyel"], ["kejem"], ["keras"], ["lacur"], ["lantang"], ["lanying"], ["lascarya"], ["luas"], ["luung"], ["lemah"], ["lemet"], ["linggah"], ["males"], ["mayus"], ["mati"], ["mebrarakan"], ["melah"], ["mokoh"], ["ngambul"], ["nyem"], ["panes"], ["putih"], ["poleng"], ["rame"], ["satya"], ["sakti"], ["sakit"], ["selem"], ["seleg"], ["seduk"], ["sebet"], ["sengsara"], ["seger"], ["siteng"], ["sugih"], ["suci"], ["sue"], ["suung"], ["wayah"], ["tabah"], ["tegeh"], ["tua"], ["tenget"], ["wisesa"], ["wikan"], ["pradnyan"], ["patut"], ["puntul"], ["podol"], ["polos"], ["ramah"]]
 }
+
+# Metadata Sor Singgih untuk Numeralia
+NUMERALIA_SOR_SINGGIH = {
+    # Basa Kasar/Andap
+    'besik': {'register': 'kasar', 'meaning': '1', 'alus': 'asiki'},
+    'siki': {'register': 'kasar', 'meaning': '1', 'alus': 'asiki'},
+    'dua': {'register': 'kasar', 'meaning': '2', 'alus': 'kalih'},
+    'duang': {'register': 'kasar', 'meaning': '2', 'alus': 'kalih'},
+    'dadua': {'register': 'kasar', 'meaning': '2', 'alus': 'kalih'},
+    'dadue': {'register': 'kasar', 'meaning': '2', 'alus': 'kalih'},
+    'telung': {'register': 'kasar', 'meaning': '3', 'alus': 'tiga'},
+    'papat': {'register': 'kasar', 'meaning': '4', 'alus': 'sekawan'},
+    'pat': {'register': 'kasar', 'meaning': '4', 'alus': 'sekawan'},
+    'limang': {'register': 'kasar', 'meaning': '5', 'alus': 'panca'},
+    'lelima': {'register': 'kasar', 'meaning': '5', 'alus': 'panca'},
+    'lalima': {'register': 'kasar', 'meaning': '5', 'alus': 'panca'},
+    'nem': {'register': 'kasar', 'meaning': '6', 'alus': 'enem'},
+    'pitung': {'register': 'kasar', 'meaning': '7', 'alus': 'pitu'},
+    'kutus': {'register': 'kasar', 'meaning': '8', 'alus': 'akutus'},
+    'sia': {'register': 'kasar', 'meaning': '9', 'alus': 'asanga'},
+    'sanga': {'register': 'kasar', 'meaning': '9', 'alus': 'asanga'},
+    'dasa': {'register': 'kasar', 'meaning': '10', 'alus': 'adasa'},
+    'satus': {'register': 'kasar', 'meaning': '100', 'alus': 'aatus'},
+    'atus': {'register': 'kasar', 'meaning': '100', 'alus': 'aatus'},
+    'satak': {'register': 'kasar', 'meaning': '100', 'alus': 'aatus'},
+    'sewu': {'register': 'kasar', 'meaning': '1000', 'alus': 'asiu'},
+    'siu': {'register': 'kasar', 'meaning': '1000', 'alus': 'asiu'},
+    
+    # Basa Alus/Singgih
+    'asiki': {'register': 'alus', 'meaning': '1', 'kasar': 'besik/siki'},
+    'kalih': {'register': 'alus', 'meaning': '2', 'kasar': 'duang/dua'},
+    'sekawan': {'register': 'alus', 'meaning': '4', 'kasar': 'papat/pat'},
+    'panca': {'register': 'alus', 'meaning': '5', 'kasar': 'limang/lima'},
+    'enem': {'register': 'alus', 'meaning': '6', 'kasar': 'nem'},
+    'akutus': {'register': 'alus', 'meaning': '8', 'kasar': 'kutus'},
+    'asanga': {'register': 'alus', 'meaning': '9', 'kasar': 'sanga/sia'},
+    'adasa': {'register': 'alus', 'meaning': '10', 'kasar': 'dasa'},
+    'aatus': {'register': 'alus', 'meaning': '100', 'kasar': 'satus'},
+    'asiu': {'register': 'alus', 'meaning': '1000', 'kasar': 'sewu/siu'},
+    
+    # Netral (bisa digunakan di semua register)
+    'tiga': {'register': 'netral', 'meaning': '3'},
+    'tigang': {'register': 'netral', 'meaning': '3'},
+    'lima': {'register': 'netral', 'meaning': '5'},
+    'pitu': {'register': 'netral', 'meaning': '7'},
+    'ulu': {'register': 'netral', 'meaning': '9'},
+    'roras': {'register': 'netral', 'meaning': '12'},
+    'solas': {'register': 'netral', 'meaning': '13'},
+    'telulas': {'register': 'netral', 'meaning': '14'},
+    'limolas': {'register': 'netral', 'meaning': '15'},
+    'pitulas': {'register': 'netral', 'meaning': '17'},
+    'plekutus': {'register': 'netral', 'meaning': '18'},
+    'siangolas': {'register': 'netral', 'meaning': '19'},
+    'likur': {'register': 'netral', 'meaning': '20'},
+    'salikur': {'register': 'netral', 'meaning': '21'},
+    'selae': {'register': 'netral', 'meaning': '25'},
+    'pasaur': {'register': 'netral', 'meaning': '35'},
+    'setiman': {'register': 'netral', 'meaning': '50'},
+    'seket': {'register': 'netral', 'meaning': '50'},
+    'benang': {'register': 'netral', 'meaning': '80'},
+    'karobelah': {'register': 'netral', 'meaning': '200'},
+    'lebak': {'register': 'netral', 'meaning': '200'},
+    'samas': {'register': 'netral', 'meaning': '400'},
+    'domas': {'register': 'netral', 'meaning': '500'},
+    'bangsit': {'register': 'netral', 'meaning': '800'},
+    'ribuan': {'register': 'netral', 'meaning': 'thousands'},
+    'kapertama': {'register': 'netral', 'meaning': 'pertama'},
+    'kaping': {'register': 'netral', 'meaning': 'ke-'},
+    'adiri': {'register': 'netral', 'meaning': 'sendiri'},
+    'aparo': {'register': 'netral', 'meaning': '½'},
+    'paro': {'register': 'netral', 'meaning': '½'},
+    'ping': {'register': 'netral', 'meaning': 'kali'},
+    'alaksa': {'register': 'netral', 'meaning': '100,000'},
+    'aketi': {'register': 'netral', 'meaning': '10,000,000'},
+    'ayutia': {'register': 'netral', 'meaning': '1,000,000'},
+    'abungkul': {'register': 'netral', 'meaning': 'sebungkul'},
+    'akatih': {'register': 'netral', 'meaning': 'sekatih'},
+    'ayu': {'register': 'netral', 'meaning': 'seayu'},
+    'sepaa': {'register': 'netral', 'meaning': 'seperempat'},
+}
+
+# Metadata Sor Singgih untuk Pronoun
+PRONOUN_SOR_SINGGIH = {
+    # Orang Pertama
+    'tiang': {'register': 'alus', 'meaning': 'saya', 'person': '1st'},
+    'tiange': {'register': 'alus', 'meaning': 'saya', 'person': '1st'},
+    'titiang': {'register': 'alus', 'meaning': 'saya (sangat alus)', 'person': '1st'},
+    'icang': {'register': 'kasar', 'meaning': 'saya', 'person': '1st'},
+    'cang': {'register': 'kasar', 'meaning': 'saya', 'person': '1st'},
+    'iang': {'register': 'kasar', 'meaning': 'saya', 'person': '1st'},
+    'awakne': {'register': 'kasar', 'meaning': 'saya', 'person': '1st'},
+    'dewek': {'register': 'kasar', 'meaning': 'saya', 'person': '1st'},
+    'iraga': {'register': 'madia', 'meaning': 'kita/kami', 'person': '1st-plural'},
+    'iragane': {'register': 'madia', 'meaning': 'kita/kami', 'person': '1st-plural'},
+    
+    # Orang Kedua
+    'cai': {'register': 'kasar', 'meaning': 'kamu', 'person': '2nd'},
+    'ci': {'register': 'kasar', 'meaning': 'kamu', 'person': '2nd'},
+    'iba': {'register': 'kasar', 'meaning': 'kamu', 'person': '2nd'},
+    'ragane': {'register': 'madia', 'meaning': 'kamu', 'person': '2nd'},
+    'ragan-ragane': {'register': 'madia', 'meaning': 'kamu', 'person': '2nd'},
+    'jerone': {'register': 'alus', 'meaning': 'beliau', 'person': '2nd'},
+    'ida': {'register': 'alus', 'meaning': 'beliau', 'person': '2nd'},
+    'idane': {'register': 'alus', 'meaning': 'beliau', 'person': '2nd'},
+    'dane': {'register': 'alus', 'meaning': 'dia/beliau', 'person': '2nd/3rd'},
+    'cokor': {'register': 'alus', 'meaning': 'beliau', 'person': '2nd'},
+    
+    # Orang Ketiga
+    'ia': {'register': 'kasar', 'meaning': 'dia', 'person': '3rd'},
+    'ikane': {'register': 'kasar', 'meaning': 'dia', 'person': '3rd'},
+    'ipun': {'register': 'alus', 'meaning': 'dia/beliau', 'person': '3rd'},
+    'ipune': {'register': 'alus', 'meaning': 'dia/beliau', 'person': '3rd'},
+    'ipuna': {'register': 'alus', 'meaning': 'dia/beliau', 'person': '3rd'},
+    'ipun-ipun': {'register': 'alus', 'meaning': 'mereka', 'person': '3rd-plural'},
+}
+
+CLASSIFIER_METADATA = {
+    'diri': {'meaning': 'classifier untuk orang', 'usage': 'manusia'},
+    'ekor': {'meaning': 'classifier untuk hewan', 'usage': 'hewan'},
+    'ukud': {'meaning': 'classifier untuk hewan (ekor)', 'usage': 'hewan'},
+    'pasang': {'meaning': 'classifier untuk berpasangan', 'usage': 'benda berpasangan'},
+    'lusin': {'meaning': 'classifier untuk lusin (12)', 'usage': 'satuan komersial'},
+    'hektar': {'meaning': 'classifier untuk luas tanah', 'usage': 'tanah'},
+    'tingkat': {'meaning': 'classifier untuk tingkat/lantai', 'usage': 'bangunan'},
+    'batang': {'meaning': 'classifier untuk benda panjang', 'usage': 'benda panjang'},
+}
+
+def get_all_numerals():
+    """Dapatkan semua numeralia dari grammar."""
+    return [num[0] for num in RULES_CFG.get("Num", [])]
+
+def get_all_pronouns():
+    """Dapatkan semua pronoun dari grammar."""
+    return [pron[0] for pron in RULES_CFG.get("Pronoun", [])]
+
+def get_numeral_register(word):
+    """Dapatkan register numeralia."""
+    return NUMERALIA_SOR_SINGGIH.get(word.lower(), {}).get('register', None)
+
+def get_pronoun_register(word):
+    """Dapatkan register pronoun."""
+    return PRONOUN_SOR_SINGGIH.get(word.lower(), {}).get('register', None)
+
+def is_classifier(word):
+    """Cek apakah kata adalah classifier."""
+    return word.lower() in CLASSIFIER_METADATA

@@ -1,1 +1,4 @@
 graphviz
+schedule
+upstash-redis
+tabulate
