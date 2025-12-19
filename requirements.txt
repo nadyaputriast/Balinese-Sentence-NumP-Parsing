@@ -1,4 +1,10 @@
+streamlit
 graphviz
 schedule
-upstash-redis
 tabulate
+pandas
+openai
+python-dotenv
+plotly.express
+SpeechRecognition
+pyaudio
