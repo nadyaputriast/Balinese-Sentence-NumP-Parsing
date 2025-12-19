@@ -6,5 +6,3 @@ pandas
 openai
 python-dotenv
 plotly.express
-SpeechRecognition
-pyaudio
