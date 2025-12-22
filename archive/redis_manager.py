@@ -10,8 +10,8 @@ class RedisVocabManager:
     def __init__(self):
         """Initialize Redis connection"""
         # Konfigurasi Upstash Redis (dari environment variable)
-        self.redis_url = os.getenv('UPSTASH_REDIS_URL', 'https://civil-mongoose-20933.upstash.io')
-        self.redis_token = os.getenv('UPSTASH_REDIS_TOKEN', 'AVHFAAIncDIwMDkzNTg5MGQ5ZTM0NmEwYmI3ODZjMWM1NDIxZWVhYXAyMjA5MzM')
+        self.redis_url = os.getenv('UPSTASH_REDIS_URL', 'url-redis-upstash-anda')
+        self.redis_token = os.getenv('UPSTASH_REDIS_TOKEN', 'secret-token-anda')
         
         # Connect to Upstash Redis
         try:
