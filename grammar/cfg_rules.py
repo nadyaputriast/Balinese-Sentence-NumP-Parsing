@@ -42,62 +42,45 @@ def load_lexicon():
 
 # 2. Syntax Rules: Non-Terminal Rules (Kategori Sintaksis)
 SYNTAX_RULES = {
-    "K": [
-        ["K1"],
-        ["K1", "K2"],
-        ["K1", "Pel"],
-        ["K1", "Ket"],
-        ["K", "Conj", "K"]
-    ],
+    "K":  [["K1"], ["K1", "K2"], ["K1", "Pel"], ["K1", "Ket"], ["X_K_Conj", "K"]],
     "K1": [["S", "P"]],
     "K2": [["Pel", "Ket"]],
-    "S": [["NP"]],
-    "P": [["NumP"]],
+    "S":  [["NP"]],
+    "P":  [["NumP"]],
     "Pel": [["AdjP"], ["VP"]],
     "Ket": [["PP"]],
     "NP": [
-        ["Noun"],
-        ["NumP", "NP"],
-        ["NP", "NP"],
-        ["NP", "PropNoun"],
-        ["NP", "Pronoun"],
-        ["Pronoun"],
-        ["PropNoun"],
-        ["Adv", "NP"],
-        ["NP", "Det"],
-        ["Det", "NP"],
-        ["NP", "AdjP"],
-        ["NP", "Adv"],
-        ["NP", "Conj", "NP"]
+        ["Noun"], ["NumP", "NP"], ["NP", "NP"],
+        ["NP", "PropNoun"], ["NP", "Pronoun"],
+        ["Pronoun"], ["PropNoun"],
+        ["Adv", "NP"], ["NP", "Det"], ["Det", "NP"],
+        ["NP", "AdjP"], ["NP", "Adv"],
+        ["X_NP_Conj", "NP"]
     ],
     "NumP": [
-        ["Num"],
-        ["NumP", "NP"],
-        ["NumP", "NumP"],
-        ["NumP", "Conj", "NumP"]
+        ["Num"], ["NumP", "NP"], ["NumP", "NumP"],
+        ["X_NumP_Conj", "NumP"]
     ],
     "AdjP": [
-        ["Adj"],
-        ["AdjP", "AdjP"],
-        ["AdjP", "Adv"],
-        ["Adv", "AdjP"],
-        ["AdjP", "Conj", "AdjP"]
+        ["Adj"], ["AdjP", "AdjP"], ["AdjP", "Adv"], ["Adv", "AdjP"],
+        ["X_AdjP_Conj", "AdjP"]
     ],
     "VP": [
-        ["V"],
-        ["VP", "NP"],
-        ["VP", "AdjP"],
-        ["VP", "NumP"],
-        ["Adv", "VP"],
-        ["VP", "Conj", "VP"]
+        ["V"], ["VP", "NP"], ["VP", "AdjP"], ["VP", "NumP"], ["Adv", "VP"],
+        ["X_VP_Conj", "VP"]
     ],
     "PP": [
-        ["Prep", "NP"],
-        ["Prep", "AdjP"],
-        ["Prep", "NumP"],
-        ["Prep", "Adv"],
-        ["PP", "Conj", "PP"]
+        ["Prep", "NP"], ["Prep", "AdjP"], ["Prep", "NumP"], ["Prep", "Adv"],
+        ["X_PP_Conj", "PP"]
     ],
+
+    # Intermediate symbols untuk koordinasi
+    "X_NP_Conj": [["NP", "Conj"]],
+    "X_NumP_Conj": [["NumP", "Conj"]],
+    "X_AdjP_Conj": [["AdjP", "Conj"]],
+    "X_VP_Conj": [["VP", "Conj"]],
+    "X_PP_Conj": [["PP", "Conj"]],
+    "X_K_Conj": [["K", "Conj"]],
 }
 
 # 3. Merge and Export

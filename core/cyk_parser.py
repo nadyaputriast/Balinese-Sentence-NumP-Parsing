@@ -64,17 +64,15 @@ def cyk_algorithm(grammar, words):
                         if len(body) == 2:
                             B, C = body
                             if B in cyk_table[i][k] and C in cyk_table[k+1][j]:
-                                # ✅ PRIORITASKAN BINARY BACKPOINTER
                                 if head not in cyk_table[i][j]:
                                     cyk_table[i][j].add(head)
                                     backpointers[i][j][head] = ([B, C], k)
                                 else:
-                                    # Jika sudah ada, ganti jika yang lama unary (split None)
                                     old_body, old_split = backpointers[i][j][head]
                                     if old_split is None:
                                         backpointers[i][j][head] = ([B, C], k)
 
-            # Unary closure (hanya tambahkan jika belum ada)
+            # Unary closure untuk cell (i, j)
             added = True
             while added:
                 added = False
@@ -86,7 +84,7 @@ def cyk_algorithm(grammar, words):
                                 cyk_table[i][j].add(head)
                                 backpointers[i][j][head] = ([body[0]], None)
                                 added = True
-                            # ❗️ Jangan timpa backpointer biner dengan unary
+                            # ← kalau sudah ada, skip total. Tidak ada else.
 
     is_valid = 'K' in cyk_table[0][n-1]
     return is_valid, cyk_table, backpointers
