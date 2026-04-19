@@ -1,14 +1,9 @@
 import pandas as pd
 import streamlit as st
-from core import cyk_algorithm, convert_to_cnf, remove_epsilon_productions, remove_unit_productions
-from grammar import RULES_CFG
-import unicodedata
-
-import pandas as pd
-import streamlit as st
 import unicodedata
 from core import cyk_algorithm, convert_to_cnf, remove_epsilon_productions, remove_unit_productions
 from grammar import RULES_CFG
+from utils import stats_manager
 
 def process_file(uploaded_file, kamus_dasar, stemmer_func):
     try:
@@ -34,6 +29,7 @@ def process_file(uploaded_file, kamus_dasar, stemmer_func):
         cnf_grammar = convert_to_cnf(cfg_cleaned)
         
         results = []
+        batch_stats_data = []
         progress_bar = st.progress(0)
         
         for i, row in df.iterrows():
@@ -53,6 +49,8 @@ def process_file(uploaded_file, kamus_dasar, stemmer_func):
             
         df['status'] = results
         df_final = df[['kalimat_utuh', 'status']].rename(columns={'kalimat_utuh': 'kalimat'})
+        
+        stats_manager.update_stats_batch(batch_stats_data)
         
         return df_final, None
         

@@ -31,6 +31,33 @@ def update_stats(is_valid, sentence):
     with open(STATS_FILE, "w") as f:
         json.dump(stats, f)
 
+def update_stats_batch(batch_results):
+    if not batch_results:
+        return
+        
+    stats = load_stats()
+    
+    # Hitung total
+    total_baru = len(batch_results)
+    valid_baru = sum(1 for item in batch_results if item["valid"])
+    invalid_baru = total_baru - valid_baru
+    
+    # Update angka statistik
+    stats["total_parsed"] += total_baru
+    stats["valid"] += valid_baru
+    stats["invalid"] += invalid_baru
+    
+    # Tambahkan semua ke history
+    stats["history"].extend(batch_results)
+    
+    # Potong array agar selalu maksimal 50 data terakhir (mencegah file membengkak)
+    if len(stats["history"]) > 50:
+        stats["history"] = stats["history"][-50:]
+        
+    # Simpan ke file cukup 1 kali saja
+    with open(STATS_FILE, "w") as f:
+        json.dump(stats, f)
+        
 def render_stats_dashboard(dark_mode=False):
     stats = load_stats()
     
