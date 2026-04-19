@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 from dotenv import load_dotenv
+import unicodedata
 
 # Load Environment Variables
 load_dotenv()
@@ -88,6 +89,7 @@ def main():
         st.button("🚀 Analisis Struktur", type="primary", use_container_width=True)
 
         sentence = text_val.lower().strip()
+        sentence = unicodedata.normalize('NFKD', sentence).encode('ASCII', 'ignore').decode('utf-8')
         
         if sentence:
             result = run_cyk_cached(sentence)
