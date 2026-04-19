@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 import unicodedata
+import json
 
 # Load Environment Variables
 load_dotenv()
@@ -34,6 +35,98 @@ def run_cyk_cached(sentence: str):
             "backpointers_viz": backpointers_viz,
         }
     return st.session_state[cache_key]
+
+@st.cache_data
+def load_balinese_corpus():
+    file_path = "scraping/balinese_lexicon.json"
+    
+    if not os.path.exists(file_path):
+        st.error(f"⚠️ File corpus tidak ditemukan di: {file_path}")
+        return set() 
+        
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+        kata_dasar_set = set()
+        
+        for kategori, isi_kategori in data.items():
+            if isinstance(isi_kategori, dict):
+                for kata in isi_kategori.keys():
+                    kata_dasar_set.add(kata.lower().strip())
+                    
+        return kata_dasar_set
+    
+def stem_kata_bali(kata, kamus_dasar):
+    """
+    Menganalisis 1 kata dan mencoba mengupas imbuhan bahasa Bali 
+    (Akhiran, Awalan, Gabungan, dan Nasalisasi) untuk mencari kata dasarnya.
+    """
+    kata_pengecualian = ["petang", "patang", "telung", "limang"]
+    if kata in kata_pengecualian or kata in kamus_dasar:
+        return kata, None
+
+    suffixes = ["ang", "ne", "in", "an", "a", "e"]
+    prefixes = ["ma", "ka", "pa", "sa", "di", "a"]
+    
+    for suf in suffixes:
+        if kata.endswith(suf):
+            k_dasar = kata[:-len(suf)]
+            if k_dasar in kamus_dasar:
+                return k_dasar, f"**{kata}** ➡️ {k_dasar} (Hapus akhiran -{suf})"
+
+    for pref in prefixes:
+        if kata.startswith(pref):
+            k_dasar = kata[len(pref):]
+            if k_dasar in kamus_dasar:
+                return k_dasar, f"**{kata}** ➡️ {k_dasar} (Hapus awalan {pref}-)"
+
+    for pref in prefixes:
+        for suf in suffixes:
+            if kata.startswith(pref) and kata.endswith(suf):
+                k_dasar = kata[len(pref):-len(suf)]
+                if k_dasar in kamus_dasar:
+                    return k_dasar, f"**{kata}** ➡️ {k_dasar} (Hapus {pref}- dan -{suf})"
+
+    if kata.startswith("ng"):
+        k_dasar = kata[2:] # Hapus 'ng'
+        if k_dasar in kamus_dasar:
+            return k_dasar, f"**{kata}** ➡️ {k_dasar} (Nasalisasi ng-)"
+            
+    if kata.startswith("ny"):
+        for huruf_asli in ['j', 'c', 's']:
+            k_dasar = huruf_asli + kata[2:]
+            if k_dasar in kamus_dasar:
+                return k_dasar, f"**{kata}** ➡️ {k_dasar} (Nasalisasi ny- menjadi {huruf_asli}-)"
+                
+    if kata.startswith("m") and len(kata) > 2:
+        for huruf_asli in ['b', 'p']:
+            k_dasar = huruf_asli + kata[1:]
+            if k_dasar in kamus_dasar:
+                return k_dasar, f"**{kata}** ➡️ {k_dasar} (Nasalisasi m- menjadi {huruf_asli}-)"
+                
+    if kata.startswith("n") and not kata.startswith("ny") and not kata.startswith("ng"):
+        for huruf_asli in ['t', 'd']:
+            k_dasar = huruf_asli + kata[1:]
+            if k_dasar in kamus_dasar:
+                return k_dasar, f"**{kata}** ➡️ {k_dasar} (Nasalisasi n- menjadi {huruf_asli}-)"
+
+    return kata, None
+
+def bersihkan_dan_stem_bali(kalimat, kamus_dasar):
+    kalimat = kalimat.replace(".", "").replace(",", "")
+    kata_kata = kalimat.split()
+    
+    hasil_bersih = []
+    log_perubahan = []
+    
+    for kata in kata_kata:
+        kata_dasar, catatan = stem_kata_bali(kata, kamus_dasar)
+        hasil_bersih.append(kata_dasar)
+        if catatan:
+            log_perubahan.append(catatan)
+            
+    return " ".join(hasil_bersih), log_perubahan
+
+KATA_DASAR_CORPUS = load_balinese_corpus()
 
 @st.dialog("📝 Detail Analisis Kalimat", width="large")
 def show_batch_detail(sentence):
@@ -88,20 +181,30 @@ def main():
 
         st.button("🚀 Analisis Struktur", type="primary", use_container_width=True)
 
-        sentence = text_val.lower().strip()
-        sentence = unicodedata.normalize('NFKD', sentence).encode('ASCII', 'ignore').decode('utf-8')
-        
-        if sentence:
-            result = run_cyk_cached(sentence)
+        if text_val:
+            sentence_raw = text_val.lower().strip()
             
-            if sentence != st.session_state.get("last_text", ""):
-                stats_manager.update_stats(result["is_valid"], sentence)
-                st.session_state.last_text = sentence
+            sentence_normalized = unicodedata.normalize('NFKD', sentence_raw).encode('ASCII', 'ignore').decode('utf-8')
+            
+            sentence_final, log_perubahan = bersihkan_dan_stem_bali(sentence_normalized, KATA_DASAR_CORPUS)
+            
+            result = run_cyk_cached(sentence_final)
+            
+            if sentence_final != st.session_state.get("last_text", ""):
+                stats_manager.update_stats(result["is_valid"], sentence_final)
+                st.session_state.last_text = sentence_final
                 
             st.divider()
+            
+            if log_perubahan:
+                st.info(
+                    "💡 **Catatan Morfologi:** Sistem menyesuaikan beberapa kata ke bentuk dasarnya (Lexicon) untuk analisis:\n\n" + 
+                    "\n".join([f"- {perubahan}" for perubahan in log_perubahan])
+                )
+            
             app_ui.render_analysis_results(
                 result["words"], result["table"], result["is_valid"],
-                cnf_viz, sentence, result["backpointers_viz"]
+                cnf_viz, sentence_final, result["backpointers_viz"]
             )
 
     elif menu == "📂 Batch Processing":
@@ -109,20 +212,23 @@ def main():
 
         if st.session_state.batch_view_mode == "list":
             st.markdown("Upload CSV untuk validasi massal. Klik baris tabel untuk melihat detail.")
-            uploaded = st.file_uploader("Upload CSV (kolom: 'kalimat')", type=["csv"])
+            uploaded = st.file_uploader("Upload File (kolom wajib: 'kalimat')", type=["csv", "xlsx", "xls"])
 
             if uploaded:
                 if st.session_state.batch_result_df is None:
                     try:
                         st.info("👀 Preview Data:")
-                        st.dataframe(pd.read_csv(uploaded).head(), use_container_width=True)
+                        if uploaded.name.endswith(('.xlsx', '.xls')):
+                            st.dataframe(pd.read_excel(uploaded).head(), use_container_width=True)
+                        else:
+                            st.dataframe(pd.read_csv(uploaded).head(), use_container_width=True)
                     except Exception:
                         pass
 
                 if st.button("🚀 Proses Batch", type="primary", use_container_width=True):
                     with st.spinner("Memproses..."):
                         uploaded.seek(0)
-                        df, err = batch_processor.process_csv(uploaded)
+                        df, err = batch_processor.process_file(uploaded, KATA_DASAR_CORPUS, bersihkan_dan_stem_bali)
                         if err:
                             st.error(err)
                         else:
@@ -166,13 +272,30 @@ def main():
             if st.button("← Kembali ke Daftar Batch"):
                 st.session_state.batch_view_mode = "list"
                 st.rerun()
+                
             st.divider()
-            sentence = st.session_state.batch_selected_sentence
-            st.markdown(f"## 🔎 Detail Analisis: *\"{sentence}\"*")
-            result = run_cyk_cached(sentence)
+            sentence_original = st.session_state.batch_selected_sentence
+            st.markdown(f"## 🔎 Detail Analisis: *\"{sentence_original}\"*")
+            
+            # --- LAKUKAN PEMBERSIHAN & STEMMING SEBELUM VISUALISASI ---
+            sentence_raw = sentence_original.lower().strip()
+            sentence_normalized = unicodedata.normalize('NFKD', sentence_raw).encode('ASCII', 'ignore').decode('utf-8')
+            sentence_final, log_perubahan = bersihkan_dan_stem_bali(sentence_normalized, KATA_DASAR_CORPUS)
+            
+            # Tampilkan notifikasi log jika ada kata yang terpotong di batch
+            if log_perubahan:
+                st.info(
+                    "💡 **Catatan Morfologi:** Sistem menyesuaikan kata ke bentuk dasarnya:\n\n" + 
+                    "\n".join([f"- {perubahan}" for perubahan in log_perubahan])
+                )
+                
+            # Gunakan sentence_final (yang sudah bersih) untuk CYK
+            result = run_cyk_cached(sentence_final)
+            
+            # Render visualisasi
             app_ui.render_analysis_results(
                 result["words"], result["table"], result["is_valid"],
-                cnf_viz, sentence, result["backpointers_viz"]
+                cnf_viz, sentence_final, result["backpointers_viz"] # <-- Harus menggunakan sentence_final
             )
 
     elif menu == "📊 Statistik":
