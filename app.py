@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+import io
 from dotenv import load_dotenv
 import unicodedata
 import json
@@ -211,61 +212,130 @@ def main():
         st.title("📂 Batch File Processing")
 
         if st.session_state.batch_view_mode == "list":
-            st.markdown("Upload CSV untuk validasi massal. Klik baris tabel untuk melihat detail.")
-            uploaded = st.file_uploader("Upload File (kolom wajib: 'kalimat')", type=["csv", "xlsx", "xls"])
+            st.markdown(
+                "Upload satu atau beberapa file untuk validasi massal. "
+                "Kolom wajib: **`kalimat`**"
+            )
 
-            if uploaded:
-                if st.session_state.batch_result_df is None:
-                    try:
-                        st.info("👀 Preview Data:")
-                        if uploaded.name.endswith(('.xlsx', '.xls')):
-                            st.dataframe(pd.read_excel(uploaded).head(), use_container_width=True)
-                        else:
-                            st.dataframe(pd.read_csv(uploaded).head(), use_container_width=True)
-                    except Exception:
-                        pass
+            uploaded_files = st.file_uploader(
+                "Upload File",
+                type=["csv", "xlsx", "xls", "docx", "txt"],
+                accept_multiple_files=True,
+                help=(
+                    "**CSV / Excel**: butuh kolom `kalimat`\n\n"
+                    "**Word (.docx)**: tabel dengan header `kalimat`, "
+                    "atau list (bullet/numbered), atau paragraf biasa\n\n"
+                    "**TXT**: tiap baris = 1 kalimat"
+                )
+            )
 
-                if st.button("🚀 Proses Batch", type="primary", use_container_width=True):
+            if uploaded_files:
+                with st.expander(f"👀 Preview {len(uploaded_files)} file yang dipilih"):
+                    for f in uploaded_files:
+                        st.markdown(f"**{f.name}**")
+                        try:
+                            f.seek(0)
+                            if f.name.lower().endswith(('.xlsx', '.xls')):
+                                st.dataframe(pd.read_excel(f).head(3), use_container_width=True)
+                            elif f.name.lower().endswith('.csv'):
+                                st.dataframe(pd.read_csv(f).head(3), use_container_width=True)
+                            elif f.name.lower().endswith('.txt'):
+                                lines = f.read().decode('utf-8', errors='ignore').splitlines()
+                                lines = [l.strip() for l in lines if l.strip()][:3]
+                                st.dataframe(pd.DataFrame({'kalimat': lines}), use_container_width=True)
+                            elif f.name.lower().endswith('.docx'):
+                                from docx import Document
+                                import io
+                                doc = Document(io.BytesIO(f.read()))
+                                paras = [p.text.strip() for p in doc.paragraphs if p.text.strip()][:3]
+                                st.dataframe(pd.DataFrame({'kalimat': paras}), use_container_width=True)
+                            else:
+                                st.caption("_(preview tidak tersedia)_")
+                            f.seek(0)
+                        except Exception:
+                            st.caption("_(gagal membaca preview)_")
+
+                if st.button("🚀 Proses Semua File", type="primary", use_container_width=True):
                     with st.spinner("Memproses..."):
-                        uploaded.seek(0)
-                        df, err = batch_processor.process_file(uploaded, KATA_DASAR_CORPUS, bersihkan_dan_stem_bali)
+                        df, err = batch_processor.process_files(
+                            uploaded_files,
+                            KATA_DASAR_CORPUS,
+                            bersihkan_dan_stem_bali
+                        )
                         if err:
                             st.error(err)
                         else:
                             st.session_state.batch_result_df = df
+                            st.session_state.excel_cache = None
                             st.rerun()
 
             if st.session_state.batch_result_df is not None:
+                df_result = st.session_state.batch_result_df
                 st.divider()
-                total = len(st.session_state.batch_result_df)
-                valid = len(st.session_state.batch_result_df[
-                    st.session_state.batch_result_df["status"] == "VALID"
-                ])
+
+                # Metrics
+                total = len(df_result)
+                valid = len(df_result[df_result["status"] == "VALID"])
                 c1, c2, c3 = st.columns(3)
-                c1.metric("Total", total)
+                c1.metric("Total Kalimat", total)
                 c2.metric("Valid ✅", valid)
                 c3.metric("Invalid ❌", total - valid)
 
-                st.markdown("#### 📋 Klik Baris untuk Detail (Full Screen)")
+                # Filter per sumber
+                if 'sumber' in df_result.columns:
+                    sources = df_result['sumber'].unique().tolist()
+                    if len(sources) > 1:
+                        selected_source = st.selectbox(
+                            "🔍 Filter per file:",
+                            options=["Semua"] + sources
+                        )
+                        df_view = (
+                            df_result if selected_source == "Semua"
+                            else df_result[df_result['sumber'] == selected_source]
+                        )
+                    else:
+                        df_view = df_result
+                else:
+                    df_view = df_result
+
+                st.markdown("#### 📥 Download Hasil")
+                col_excel, col_reset = st.columns([3, 1])
+
+                with col_excel:
+                    if st.session_state.get("excel_cache") is None:
+                        st.session_state.excel_cache = batch_processor.to_excel_bytes(df_result)
+
+                    st.download_button(
+                        label="⬇️ Download Excel",
+                        data=st.session_state.excel_cache,
+                        file_name="hasil_validasi.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        use_container_width=True,
+                    )
+
+                with col_reset:
+                    if st.button("🗑️ Reset", use_container_width=True):
+                        st.session_state.batch_result_df = None
+                        st.session_state.excel_cache = None
+                        st.rerun()
+
+                st.markdown("#### 📋 Klik baris untuk detail")
                 event = st.dataframe(
-                    st.session_state.batch_result_df,
+                    df_view,
                     use_container_width=True,
                     hide_index=True,
                     selection_mode="single-row",
                     on_select="rerun",
-                    column_config={"status": st.column_config.TextColumn("Status", width="small")}
+                    column_config={
+                        "sumber": st.column_config.TextColumn("Sumber File", width="medium"),
+                        "status": st.column_config.TextColumn("Status",      width="small"),
+                    }
                 )
 
                 if len(event.selection.rows) > 0:
                     idx = event.selection.rows[0]
-                    st.session_state.batch_selected_sentence = (
-                        st.session_state.batch_result_df.iloc[idx]["kalimat"]
-                    )
+                    st.session_state.batch_selected_sentence = df_view.iloc[idx]["kalimat"]
                     st.session_state.batch_view_mode = "detail"
-                    st.rerun()
-
-                if st.button("🔄 Reset"):
-                    st.session_state.batch_result_df = None
                     st.rerun()
 
         elif st.session_state.batch_view_mode == "detail":
@@ -276,16 +346,14 @@ def main():
             st.divider()
             sentence_original = st.session_state.batch_selected_sentence
             st.markdown(f"## 🔎 Detail Analisis: *\"{sentence_original}\"*")
-            
-            # --- LAKUKAN PEMBERSIHAN & STEMMING SEBELUM VISUALISASI ---
+
             sentence_raw = sentence_original.lower().strip()
             sentence_normalized = unicodedata.normalize('NFKD', sentence_raw).encode('ASCII', 'ignore').decode('utf-8')
             sentence_final, log_perubahan = bersihkan_dan_stem_bali(sentence_normalized, KATA_DASAR_CORPUS)
-            
-            # Tampilkan notifikasi log jika ada kata yang terpotong di batch
+
             if log_perubahan:
                 st.info(
-                    "💡 **Catatan Morfologi:** Sistem menyesuaikan kata ke bentuk dasarnya:\n\n" + 
+                    "💡 **Catatan Morfologi:** Sistem menyesuaikan kata ke bentuk dasarnya:\n\n" +
                     "\n".join([f"- {perubahan}" for perubahan in log_perubahan])
                 )
                 
@@ -295,7 +363,7 @@ def main():
             # Render visualisasi
             app_ui.render_analysis_results(
                 result["words"], result["table"], result["is_valid"],
-                cnf_viz, sentence_final, result["backpointers_viz"] # <-- Harus menggunakan sentence_final
+                cnf_viz, sentence_final, result["backpointers_viz"]
             )
 
     elif menu == "📊 Statistik":
