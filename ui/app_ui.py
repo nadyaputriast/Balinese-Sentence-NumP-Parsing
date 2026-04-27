@@ -424,6 +424,13 @@ def render_analysis_results(words, table, is_valid, cnf_grammar, sentence_str, b
 # ============================================================
 def render_grammar_expanders(rules_cfg, dark_mode=False):
     st.markdown("<h2 style='margin-bottom: 1.5rem;'>📚 Referensi Tata Bahasa</h2>", unsafe_allow_html=True)
+    
+    st.info(
+            "ℹ️ **Informasi Leksikon:** Kumpulan data kata ini dikumpulkan menggunakan teknik *automated retrieval* "
+            "dari basis data terbuka ([Glosbe](https://glosbe.com/)). Data tersebut kemudian melalui "
+            "tahap pembersihan dan **validasi manual** yang ketat untuk memastikan akurasi pada sistem *parsing*."
+        )
+    
     structural_rules = {}
     lexical_categories = {}
     for head, bodies in rules_cfg.items():
