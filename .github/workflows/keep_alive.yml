@@ -1,0 +1,13 @@
+name: Wake Up Streamlit
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+
+jobs:
+  ping-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send HTTP Request
+        run: curl -I https://balinese-parser.streamlit.app/
